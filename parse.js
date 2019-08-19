@@ -3,7 +3,7 @@ var fs = require('fs');
 var _ = require('./lodash');
 
 function analyzeComparators(comparators, multiSelectMax, totalMax) {
-   var compares = comparators.map(c => {
+   var modifiedComparators = comparators.map(c => {
      c.location = c.location.id;
      c.provider = c.provider.id || undefined;
      c.device = c.device ? c.device.id || undefined : undefined;
@@ -12,22 +12,22 @@ function analyzeComparators(comparators, multiSelectMax, totalMax) {
 
    // merge all comparator objects to get possible keys.
    // [bandwidth_metric_type, mobile_market_type, provider, location]
-   var result =  _.assign.apply(_, compares);
+   var result =  _.assign.apply(_, modifiedComparators);
    var keys = Object.keys(result);
-   var combined = {};
+   var filters = {};
 
    // combine all possible keys into arrays.
    keys.map(key => {
-     combined[key] = [...new Set(compares.filter(c => {
+     filters[key] = [...new Set(modifiedComparators.filter(c => {
        return c[key] !== undefined;
-     }).map(it => it[key]))];
+     }).map(filter => filter[key]))];
    })
 
    // calculate total comparators and multiselects
    var multiSelects = 0;
    var totalComparators = 0;
 
-   _.forEach(combined, function(value, key) {
+   _.forEach(filters, function(value, key) {
      totalComparators = totalComparators + value.length;
      if (value.length > 1) {
        multiSelects = multiSelects + 1;
@@ -40,7 +40,7 @@ function analyzeComparators(comparators, multiSelectMax, totalMax) {
    var maxMultiSelects = {};
 
    var combinedFilters = {
-     filters: combined,
+     filters,
    }
    var comparatorCounts = {
      totalComparators: totalComparators,
@@ -52,7 +52,7 @@ function analyzeComparators(comparators, multiSelectMax, totalMax) {
 
    if (totalComparators > totalMax) {
      maxComparators = {
-       filters: combined,
+       filters,
        totalComparators: totalComparators,
        totalMultiSelects: multiSelects,
      }
@@ -60,7 +60,7 @@ function analyzeComparators(comparators, multiSelectMax, totalMax) {
 
    if ( multiSelects > multiSelectMax) {
      maxMultiSelects = {
-       filters: combined,
+       filters,
        totalComparators: totalComparators,
        totalMultiSelects: multiSelects,
      }
