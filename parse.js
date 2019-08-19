@@ -23,12 +23,29 @@ function analyzeComparators(comparators, multiSelectMax, totalMax) {
      }).map(filter => filter[key]))];
    })
 
+   // separate fixed and carrier providers into separate items
+   filters.carrier_providers = _.filter(_.uniq(_.filter(modifiedComparators, c => c.mobile_market_type).map(c => c.provider)), c => Boolean(c));
+   filters.fixed_providers = _.filter(_.uniq(_.filter(modifiedComparators, c => c.platform).map(c => c.provider)), c => Boolean(c));
+
    // calculate total comparators and multiselects
    var multiSelects = 0;
-   var totalComparators = 0;
+
+   var totalCarrierComparators =
+     _.get(filters, 'carrier_providers.length')
+     * (_.get(filters, 'device.length') || 1)
+     * (_.get(filters, 'mobile_market_type.length') || 1)
+     * (_.get(filters, 'location.length') || 1)
+     * (_.get(filters, 'bandwidth_metric_type.length') || 1);
+
+   var totalFixedComparators =
+     _.get(filters, 'fixed_providers.length')
+     * (_.get(filters, 'platform.length') || 1)
+     * (_.get(filters, 'location.length') || 1)
+     * (_.get(filters, 'bandwidth_metric_type.length') || 1);
+
+   var totalComparators = totalCarrierComparators + totalFixedComparators;
 
    _.forEach(filters, function(value, key) {
-     totalComparators = totalComparators + value.length;
      if (value.length > 1) {
        multiSelects = multiSelects + 1;
      }
