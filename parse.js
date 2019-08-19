@@ -90,6 +90,7 @@ var urls = [];
 for (var i = 0; i < json.length; i++) {
     var data = JSON.parse(json[i].data)
     var customerName = json[i].customer_name;
+    var userName = json[i].first_name + ' ' + json[i].last_name;
 
     if (customerName) {
       var customerName = json[i].customer_name.split(' ').join('_');
@@ -104,6 +105,7 @@ for (var i = 0; i < json.length; i++) {
         if (!customer) {
           allInfo[nameKey] = {
             name:json[i].customer_name,
+            user: userName,
             compareReportCount: 0,
             compareReports: []
           }
@@ -132,6 +134,7 @@ for (var i = 0; i < json.length; i++) {
                 if (analyzed.maxComparators && analyzed.maxComparators.filters) {
                   maxComparators[nameKey] = {
                     name:json[i].customer_name,
+                    user: userName,
                     ...analyzed.maxComparators
                   }
                 }
@@ -139,6 +142,7 @@ for (var i = 0; i < json.length; i++) {
                 if (analyzed.maxMultiSelects && analyzed.maxMultiSelects.filters) {
                   maxMultiSelects[nameKey] = {
                     name:json[i].customer_name,
+                    user: userName,
                     ...analyzed.maxMultiSelects
                   }
                 }
@@ -155,6 +159,7 @@ for (var i = 0; i < json.length; i++) {
                 count = count + 1;
               } catch (e) {
                 errors[nameKey] = {
+                  user: userName,
                   reportWithError: savedReport,
                   errorMessage: e.message
                 }
